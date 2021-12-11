@@ -19,7 +19,7 @@ services:
       - 27017:27017
 
   quizzes:
-    image: ghcr.io/corona-travel/ctf:latest
+    image: ghcr.io/corona-travel/quizzes:latest
     environment:
       MONGO_URL: mongodb://mongo/corona_travel
       LOG_LEVEL: DEBUG

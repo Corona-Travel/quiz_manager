@@ -1,0 +1,48 @@
+networks:
+  frontend:
+  backend:
+
+services:
+  mongo:
+    image: mongo:5
+    networks:
+      - backend
+    volumes:
+      - "./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/corona_travel --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    ports:
+      - 27017:27017
+
+  quizzes:
+    image: ghcr.io/corona-travel/ctf:latest
+    environment:
+      MONGO_URL: mongodb://mongo/corona_travel
+      LOG_LEVEL: DEBUG
+    networks:
+      - backend
+    ports:
+      - 12344:1234
+
+  quiz_manager:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        SRC_PATH: "./src/quiz_manager"
+        APP_PATH: "./quiz_manager"
+        ASGI_APP: "quiz_manager.app:app"
+    environment:
+      MONGO_URL: mongodb://mongo/corona_travel
+      LOG_LEVEL: DEBUG
+    networks:
+      - backend
+    ports:
+      - 12347:1234
+
+
+
+

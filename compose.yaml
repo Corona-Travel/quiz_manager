@@ -36,7 +36,7 @@ services:
         APP_PATH: "./quiz_manager"
         ASGI_APP: "quiz_manager.app:app"
     environment:
-      MONGO_URL: mongodb://mongo/corona_travel
+      QUIZZES_URL: http://quizzes:1234/
       LOG_LEVEL: DEBUG
     networks:
       - backend

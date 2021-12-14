@@ -31,13 +31,18 @@ app.add_middleware(
 )
 async def get_quiz(quiz_id: str, settings: Settings = Depends(get_settings)):
     async with httpx.AsyncClient() as client:
-        res = loads((await client.get(f"{settings.quizzes_url}quizzes/{quiz_id}")).text)
-        print(res)
-        for question in res["questions"]:
-            for answ in question["answers"]:
-                del answ["correct"]
-        print(res)
-    return res
+        res = await client.get(f"{settings.quizzes_url}quizzes/{quiz_id}")
+
+        if res.status_code == status.HTTP_404_NOT_FOUND:
+            raise HTTPException(
+                status_code=404, detail="Quiz with specified id was not found"
+            )
+
+        quiz = loads(res.text)
+        for question in quiz["questions"]:
+            for answer in question["answers"]:
+                del answer["correct"]
+    return quiz
 
 
 @app.post(

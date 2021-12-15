@@ -48,13 +48,33 @@ async def get_quiz(quiz_id: str, settings: Settings = Depends(get_settings)):
                 del answer["correct"]
     return quiz
 
+@app.get("/quiz_manager/all/quizzes", response_model=QuizzesWithoutAnswer, tags=["service:quiz_manager"])
+async def get_all_quizzes(settings: Settings = Depends(get_settings)):
+    async with httpx.AsyncClient() as client:
+        res = await client.get(f"{settings.quizzes_url}quizzes")
+
+        quizzes = loads(res.text)
+        for quiz in quizzes:
+            for question in quiz["questions"]:
+                for answer in question["answers"]:
+                    del answer["correct"]
+        return quizzes
+
 
 @app.post("/quiz_manager/{quiz_id}", response_model=QuizResults, tags=["service:quiz_manager"])
 async def check_quiz(quiz_id: str, submitted_quiz: QuizForCheck, settings: Settings = Depends(get_settings)):
     async with httpx.AsyncClient() as client:
-        res = loads((await client.get(f"{settings.quizzes_url}quizzes/{quiz_id}")).text)
+        res = await client.get(f"{settings.quizzes_url}quizzes/{quiz_id}")
+
+        if res.status_code == status.HTTP_404_NOT_FOUND:
+            raise HTTPException(
+                status_code=404, detail="Quiz with specified id was not found"
+            )
+
+        quiz = loads(res.text)
+
         answers = []
-        for question in res["questions"]:
+        for question in quiz["questions"]:
             for answer in question["answers"]:
                 if answer["correct"] == True and answer["option"]:
                     answers.append(answer["option"])

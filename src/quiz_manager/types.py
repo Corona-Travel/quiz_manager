@@ -44,6 +44,19 @@ class QuizWithAnswerWithoutId(BaseModel):
 class QuizWithAnswer(QuizWithAnswerWithoutId):
     quiz_id: str
 
+class QuizForCheck(BaseModel):
+    quiz_id: str
+    answers: list[str]
+
+class AnswersComparison(BaseModel):
+    correct_answer: str
+    users_answer: str
+
+class QuizResults(BaseModel):
+    quiz_id: str
+    score: int
+    percentage: int
+    explanation: list[AnswersComparison]
 
 Quizzes = list[QuizWithAnswer]
 

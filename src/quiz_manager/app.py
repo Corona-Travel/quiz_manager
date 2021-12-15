@@ -1,25 +1,53 @@
-from json import loads
 import asyncio
+from json import loads
 from typing import Any, Awaitable, Callable
 
-from fastapi import FastAPI, Depends, HTTPException, status
 import httpx
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 
-from .types import AnswersComparison, QuizForCheck, QuizResults, QuizWithAnswer, QuizWithAnswerWithoutId, QuizWithoutAnswer, QuizzesWithoutAnswer
+
 from .settings import Settings, get_settings
+from .types import (
+    AnswersComparison,
+    QuizForCheck,
+    QuizResults,
+    QuizWithAnswer,
+    QuizWithAnswerWithoutId,
+    QuizWithoutAnswer,
+    QuizzesWithoutAnswer,
+)
 
 app = FastAPI(openapi_tags=[{"name": "service:quiz_manager"}])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/quiz_manager/{quiz_id}", response_model=QuizWithoutAnswer, tags=["service:quiz_manager"])
+
+@app.get(
+    "/quiz_manager/{quiz_id}",
+    response_model=QuizWithoutAnswer,
+    tags=["service:quiz_manager"],
+)
 async def get_quiz(quiz_id: str, settings: Settings = Depends(get_settings)):
     async with httpx.AsyncClient() as client:
-        res = loads((await client.get(f"{settings.quizzes_url}quizzes/{quiz_id}")).text)
-        print(res)
-        for question in res["questions"]:
-            for answ in question["answers"]:
-                del answ["correct"]
-        print(res)
-    return res
+        res = await client.get(f"{settings.quizzes_url}quizzes/{quiz_id}")
+
+        if res.status_code == status.HTTP_404_NOT_FOUND:
+            raise HTTPException(
+                status_code=404, detail="Quiz with specified id was not found"
+            )
+
+        quiz = loads(res.text)
+        for question in quiz["questions"]:
+            for answer in question["answers"]:
+                del answer["correct"]
+    return quiz
+
 
 @app.post("/quiz_manager/{quiz_id}", response_model=QuizResults, tags=["service:quiz_manager"])
 async def check_quiz(quiz_id: str, submitted_quiz: QuizForCheck, settings: Settings = Depends(get_settings)):

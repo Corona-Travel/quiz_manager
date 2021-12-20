@@ -15,15 +15,11 @@ jobs:
 
       - name: Build image
         run: |
-          docker build . --file Dockerfile --tag quiz_manager --label "runnumber=${GITHUB_RUN_ID}" \
-          --build-arg SRC_PATH="./src/quiz_manager" \
-          --build-arg APP_PATH="./quiz_manager" \
-          --build-arg ASGI_APP="$quiz_manager.app:app" \
-          --build-arg TEST_NAME="test_quiz_manager.py";
+          docker compose build;
 
       - name: Tests
         run: |
-          docker run -i quiz_manager /bin/bash -c "coverage run -m pytest > /dev/null && coverage report" > quiz_manager_coverage.txt;
+          docker compose up --build --force-recreate -d && docker compose run quiz_manager /bin/bash -c "coverage run -m pytest && coverage report" > quiz_manager_coverage.txt && docker compose down;
 
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin

@@ -1,5 +1,10 @@
-from src import __version__
+from quiz_manager.app import app
 
+from fastapi.testclient import TestClient
 
-def test_version():
-    assert __version__ == "0.1.0"
+client = TestClient(app)
+
+def test_get_quizzes():
+    i = 2
+    i = i + 1
+    assert i == 3

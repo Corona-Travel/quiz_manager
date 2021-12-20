@@ -5,6 +5,7 @@ EXPOSE 1234
 ARG SRC_PATH="./src/app"
 ARG APP_PATH="./app"
 ARG ASGI_APP="app:app"
+ARG TEST_NAME="app"
 
 ENV ASGI_APP_ENV=$ASGI_APP
 
@@ -21,5 +22,6 @@ RUN poetry config --local virtualenvs.create false
 RUN poetry install
 
 COPY $SRC_PATH $APP_PATH
+COPY ./tests/${TEST_NAME} .
 
 CMD uvicorn --host 0.0.0.0 --port 1234 --log-level debug $ASGI_APP_ENV

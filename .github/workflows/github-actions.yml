@@ -1,4 +1,4 @@
-name: Build resources container
+name: Build quiz manager container
 
 on: [push, pull_request]
 
@@ -15,16 +15,25 @@ jobs:
 
       - name: Build image
         run: |
-          for NAME in $(ls ./src);
-          do
-            docker build . --file Dockerfile --tag ${NAME} --label "runnumber=${GITHUB_RUN_ID}" \
-            --build-arg SRC_PATH="./src/${NAME}" \
-            --build-arg APP_PATH="./${NAME}" \
-            --build-arg ASGI_APP="${NAME}.app:app";
-          done
+          docker build . --file Dockerfile --tag quiz_manager --label "runnumber=${GITHUB_RUN_ID}" \
+          --build-arg SRC_PATH="./src/quiz_manager" \
+          --build-arg APP_PATH="./quiz_manager" \
+          --build-arg ASGI_APP="$quiz_manager.app:app" \
+          --build-arg TEST_NAME="test_quiz_manager.py";
+
+      - name: Tests
+        run: |
+          docker run -i quiz_manager /bin/bash -c "coverage run -m pytest > /dev/null && coverage report" > $quiz_manager_coverage.txt;
 
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Save reports
+        uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: code-coverage-report
+          path: ./*_coverage.txt
 
       - name: Push image
         run: |

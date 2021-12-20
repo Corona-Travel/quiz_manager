@@ -15,6 +15,14 @@ jobs:
 
       - name: Build image
         run: |
+          docker build . --file Dockerfile --tag quiz_manager --label "runnumber=${GITHUB_RUN_ID}" \
+          --build-arg SRC_PATH="./src/quiz_manager" \
+          --build-arg APP_PATH="./quiz_manager" \
+          --build-arg ASGI_APP="$quiz_manager.app:app" \
+          --build-arg TEST_NAME="test_quiz_manager.py";
+
+      - name: Build in compose for tests
+        run: |
           docker compose build;
 
       - name: Tests

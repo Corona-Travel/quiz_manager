@@ -1,0 +1,21 @@
+failed to get console mode for stdout: The handle is invalid.
+failed to get console mode for stdout: The handle is invalid.
+failed to get console mode for stdout: The handle is invalid.
+============================= test session starts ==============================
+platform linux -- Python 3.9.9, pytest-5.4.3, py-1.11.0, pluggy-0.13.1
+rootdir: /corona_travel
+plugins: anyio-3.4.0
+collected 2 items
+
+test_quiz_manager.py ..                                                  [100%]
+
+============================== 2 passed in 0.90s ===============================
+Name                       Stmts   Miss  Cover
+----------------------------------------------
+quiz_manager/__init__.py       1      0   100%
+quiz_manager/app.py           54     25    54%
+quiz_manager/settings.py      10      0   100%
+quiz_manager/types.py         40      0   100%
+test_quiz_manager.py          10      0   100%
+----------------------------------------------
+TOTAL                        115     25    78%

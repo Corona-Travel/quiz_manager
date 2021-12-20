@@ -35,6 +35,7 @@ services:
         SRC_PATH: "./src/quiz_manager"
         APP_PATH: "./quiz_manager"
         ASGI_APP: "quiz_manager.app:app"
+        TEST_NAME: "test_quiz_manager.py"
     environment:
       QUIZZES_URL: http://quizzes:1234/
       LOG_LEVEL: DEBUG

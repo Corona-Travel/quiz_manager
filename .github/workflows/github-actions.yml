@@ -23,7 +23,7 @@ jobs:
 
       - name: Tests
         run: |
-          docker run -i quiz_manager /bin/bash -c "coverage run -m pytest > /dev/null && coverage report" > $quiz_manager_coverage.txt;
+          docker run -i quiz_manager /bin/bash -c "coverage run -m pytest > /dev/null && coverage report" > quiz_manager_coverage.txt;
 
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin

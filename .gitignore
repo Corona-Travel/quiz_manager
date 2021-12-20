@@ -6,6 +6,3 @@
 
 # cache
 /**/__pycache__/
-
-# for local testing only
-/mongo-init.js
